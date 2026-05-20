@@ -1,0 +1,43 @@
+services:
+  app:
+    build: .
+    # image: php:8.2-apache
+    restart: always
+    volumes:
+      - ./app:/var/www/html
+    ports:
+      - "8085:80"
+    depends_on:
+      - mysql
+    networks:
+      - rede_geral
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - rede_geral
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+    ports:
+      - "127.0.0.1:8084:80"
+    depends_on:
+      - mysql
+    networks:
+      - rede_geral
+
+volumes:
+  mysql_data:
+
+networks:
+  rede_geral:
+    driver: bridge
